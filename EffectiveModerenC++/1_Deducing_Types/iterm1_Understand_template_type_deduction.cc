@@ -6,6 +6,10 @@ template<typename T>
 void func(ParamType param) {
 }
 
+ParamType有三种情况
+1. ParamType是一个指针或引用，但不是通用引用
+2. ParamType是一个通用引用
+3. ParamType既不是指针也不是引用
 f(expr)
  * */
 

@@ -28,7 +28,6 @@ int main() {
 	}
 
 	{
-		// (2) 如果调用参数是按引用传递的，任何类型装换都是不可以的
 		// (2) 调用参数是按值传递的，那么只能退化(decay)，const和volatile限制符会被忽略，引用会转换成被引用的类型
 		// raw array and function 被转换为相应的指针
 		const int c = 42;
