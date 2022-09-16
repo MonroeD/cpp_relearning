@@ -61,10 +61,12 @@ int main() {
     int x = 27;
     const int cx = x;
     const int& rx = cx;
+    int* px = &x;
 
     func_v1(x);   // T是int, param是int&
     func_v1(cx);  // T是const int, param是const int&
     func_v1(rx);  // T是const int, param是const int&
+    func_v1(px);  // T是int*, param是int*&
 
     /* (1) 当他们传递一个const对象给一个引用类型的参数时，他们传递的对象保留了常量性
      * 这也是为什么向T&传递const对象是安全的，对象T的常量性会被保留为T的一部分
