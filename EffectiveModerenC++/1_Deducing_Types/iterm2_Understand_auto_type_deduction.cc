@@ -1,4 +1,5 @@
 #include <iostream>
+#include <typeinfo>
 
 // auto的推导和iterm1模板的推导一样，除了一个例外
 /*
@@ -48,9 +49,10 @@ int main() {
     auto x2(27);       // int
     auto x3 = {27};    // std::initializer_list<int>, 值是{27}
     auto x4{27};       // std::initializer_list<int>, 值是{27}
+    std::cout << typeid(x4).name() << "\n";  // 查看变量类型
     
     // 如果一个类型不能被成功被推导（比如花括号里面包含的是不同类型的变量），编译器会拒接这样的代码！
-    //auto x5 = {1, 2, 3.0};
+    //auto x5 = {1, 2, 3.0}; 因为会根据1, 2推断出T -> int, 又会根据3.0推断出 T -> double
   }
 
   // auto类型推导和模板类型推导的唯一不同的地方:
