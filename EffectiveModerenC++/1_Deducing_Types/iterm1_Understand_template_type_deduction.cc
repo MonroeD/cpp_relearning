@@ -32,7 +32,7 @@ void func_v2(T&& param) {
  * 2. 如果忽略引用之后的expr是一个const，就再忽略const，如果它是volatile，也会被忽略(volatile不常用, 常用于驱动开发)
  * */
 template<typename T>
-void func_v3(T param) {
+void func_v3(T param) {   // 以传值的方式处理param
 }
 
 // 有趣的是，对模板函数声明为一个指向数组的引用使得我们可以在模板函数中推导出数组的大小
