@@ -25,6 +25,7 @@ int main(void) {
   {
 #if 0
     // (3) 直接产生闭包，lambda表达式
+    // 使用std::function比auto会消耗更多的内存，并且通过具体的实现可得知std::function调用一个闭包会比auto对象要慢
     auto f = [] {
     };
 #endif
