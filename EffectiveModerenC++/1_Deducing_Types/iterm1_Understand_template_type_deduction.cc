@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstddef>
+#include <type_traits>
 
 /*
 template<typename T>
@@ -20,6 +21,10 @@ template<typename T>
 void func_v1(T& param) {
 }
 
+template<typename T>
+void func_v1_const(const T& param) {
+}
+
 /* 1. 如果expr是左值，T和ParamType都会被推导为左值引用, 这是模板类型推导中唯一一种T和ParamType被推导为引用的情况
  *    虽然ParamType被声明为右值引用类型，但最后推导的结果它是左值引用
  * 2. 如果expr是右值，就情况一的推导规则
@@ -28,11 +33,24 @@ template<typename T>
 void func_v2(T&& param) {
 }
 
+template<typename T>
+void func_v2_const(const T&& param) {
+}
+
 /* 1. 如果expr的类型是一个引用，忽略这个引用部分
  * 2. 如果忽略引用之后的expr是一个const，就再忽略const，如果它是volatile，也会被忽略(volatile不常用, 常用于驱动开发)
  * */
 template<typename T>
 void func_v3(T param) {   // 以传值的方式处理param
+  std::cout << std::is_const<decltype(param)>::value << "\n"; // 会打印0
+}
+
+/*
+ * TODO func_v3_const应该的确是一个const参数，但是nm查看的函数声明却不是const，这有点让人吃惊！！！
+ * */
+template<typename T>
+void func_v3_const(const T param) {
+  std::cout << std::is_const<decltype(param)>::value << "\n"; // 会打印1
 }
 
 // 有趣的是，对模板函数声明为一个指向数组的引用使得我们可以在模板函数中推导出数组的大小
@@ -73,6 +91,13 @@ int main() {
      *
      * (2) 注意即使rx的类型是一个引用，T也会被推导为一个非引用, 也就是上面的1.所描述的
      */
+
+    {
+      func_v1_const(x);  // T是int, param是const int&
+      func_v1_const(cx); // T是int, param是const int&
+      func_v1_const(rx); // T是int, param是const int&
+      func_v1_const(px); // T是int*, param是const int*&
+    }
   }
 
   // 情况二：ParamType是一个通用引用
@@ -88,6 +113,10 @@ int main() {
     func_v2(rx);  // rx是左值，所以T也是const int&, param也是const int&
     func_v2(27); // 27是右值，所以T是int, param类型就是int&&
     func_v2(p);    // p是左值，所以T是int*, param类型是int*&
+    
+    {
+      func_v2_const(27); // 只有27这个可以编译过
+    }
   }
 
   // 情况三: ParamType既不是指针也不是引用
@@ -99,6 +128,12 @@ int main() {
     func_v3(x);   // T和param都是int
     func_v3(cx);  // T和param都是int
     func_v3(rx);  // T和param都是int
+
+    {
+      func_v3_const(x); // T是int, param是const int
+      func_v3_const(cx); // T是int, param是const int
+      func_v3_const(rx); // T是int, param是const int
+    }
     
     /* 注意到即使cx和rx表示const值，param也不是const, 这是有意义的。param是一个拷贝自cx和rx且独立存在的完整对象
      * ，具有常量性的cx和rx不可修改并不代表param也是一样。这个也就是为什么expr的常量性或易变性在类型推导时会被忽略，
