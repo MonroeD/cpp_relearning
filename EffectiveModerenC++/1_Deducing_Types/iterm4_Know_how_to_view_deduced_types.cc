@@ -26,7 +26,9 @@ int main(void) {
   }
 
   {
-    // (3) typeid有时候也有问题
+    // (3) typeid有时候也有问题, 至少不能打印出来cv修饰符，比如说const, reference等
+    const int x = 10;
+    std::cout << typeid(x).name() << "\n"; // i
   }
   return 0;
 }
