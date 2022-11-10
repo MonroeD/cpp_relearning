@@ -34,6 +34,11 @@ auto authAndAccess(Container& c, Index i) -> decltype(c[i]) {
 
 // (2) c++11允许自动推导单一语句的lambda的表达式的返回类型，c++14扩展到允许自动推导左右的lambda表达式和函数，甚至它们内含多条语句
 // c++14版本
+// auto 遵循item2->item1的标准，会忽略掉const/reference，因此返回的就会int, 而不是int&，而我们想要的是int&
+// 因此需要通过decltype(auto)来获取返回int&
+/*
+ * 可通过int& i = authAndAccess_v1(vector, i); 编译会报错来验证上面我说的话
+ * */
 template<typename Container, typename Index>
 auto authAndAccess_v1(Container& c, Index i) {
   //authenticateUser();
@@ -42,13 +47,39 @@ auto authAndAccess_v1(Container& c, Index i) {
 }
 
 
-// (3) decltype(auto) TODO, 见书上的解释吧
-// c[i]会返回真正的c[i]类型
+// (3) decltype(auto)
+// auto说明这个符号会被推导，decltype说明decltype的规则将会引导到这个推导中
+// c[i]会返回真正的c[i]类型, 即是int&
 template<typename Container, typename Index>
 decltype(auto) authAndAccess_v2(Container& c, Index i) {
   //authenticateUser();
   int j = 10;
   return c[i];
+}
+/*
+ * 但是获取这个引用的时候需要注意，比如说
+ * auto x = authAndAccess_v2(c, i); // 这里的x就不是引用
+ * auto& x = authAndAccess_v2(c, i); // x是引用
+ * 具体上诉auto的使用可以见item2
+ * 这点可以通过std::is_lvalue_reference<decltype(x)>::value来验证；
+ * 或者通过去修改x的值来验证
+ * */
+
+// (4) 最完美的实现
+/* 上述的实现不能绑定右值，比如说调用authAndAccess_v2(std::vector<int>{1, 2}, 0); 编译就会出错
+ * */
+// c++14版本
+template<typename Container, typename Index>
+decltype(auto) authAndAccess_v3(Container&& c, Index i) {
+  //authenticateUser();
+  return std::forward<Container>(c)[i];
+}
+
+// c++11版本
+template<typename Container, typename Index>
+auto authAndAccess_v3_11(Container&& c, Index i) -> decltype(std::forward<Container>(c)[i]){
+  //authenticateUser();
+  return std::forward<Container>(c)[i];
 }
 
 // 总结
